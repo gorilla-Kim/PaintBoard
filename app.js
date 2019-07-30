@@ -4,6 +4,8 @@ const colors = document.getElementsByClassName("jsColor");
 const range = document.getElementById("jsRange");
 const mode = document.getElementById("jsMode");
 const saveBtn = document.getElementById("jsSave");
+const rectBtn = document.getElementById("rectBtn");
+const circleBtn = document.getElementById("circleBtn");
 
 const INITIAL_COLOR = "#2c2c2c";
 const CANVAS_SIZE = 700;
@@ -19,14 +21,35 @@ ctx.lineWidth = 2.5;
 
 let painting = false;
 let filling = false;
+let rect = false;
+let circle = false;
+
+let bx = null;
+let by = null;
 
 // 그리기 정지
-function stopPainting(){
+function stopPainting(event){
     painting = false;
+    if(rect){
+        ctx.strokeRect(bx, by, Math.abs(bx-event.offsetX), Math.abs(by-event.offsetY));
+        handleRectClick();
+    }
+    if(circle){
+        var a = Math.sqrt(Math.pow(bx-event.offsetX,2)+Math.pow(by-event.offsetY,2));
+        ctx.arc(bx, by, a, 0, 2 * Math.PI);
+        ctx.stroke();
+        handleCircleClick();
+    }
 }
 // 그리기 시작
-function startPainting(){
+function startPainting(event){
     painting = true;
+    if(rect || circle){
+        painting = false;
+        bx = event.offsetX;
+        by = event.offsetY;
+        console.log(bx, by);
+    }
 }
 
 function onMouseMove(event){
@@ -84,6 +107,30 @@ function handleSaveClick(event){
     link.click(); 
 }
 
+function handleRectClick(event){
+    console.log(event);
+    if(rect === true){
+        rect = false;
+        rectBtn.innerText = "Rect";
+    }else{
+        rect = true;
+        filling = false;
+        rectBtn.innerText = "Active Rect";
+    }
+}
+
+function handleCircleClick(event){
+    console.log(event);
+    if(circle === true){
+        circle = false;
+        circleBtn.innerText = "Circle";
+    }else{
+        circle = true;
+        filling = false;
+        circleBtn.innerText = "Active Cir";
+    }
+}
+
 if (canvas){
     canvas.addEventListener("mousemove", onMouseMove);
     canvas.addEventListener("mousedown", startPainting);
@@ -105,4 +152,12 @@ if(mode){
 
 if(saveBtn){
     saveBtn.addEventListener("click", handleSaveClick);
+}
+
+if(rectBtn){
+    rectBtn.addEventListener("click", handleRectClick);
+}
+
+if(circleBtn){
+    circleBtn.addEventListener("click", handleCircleClick);
 }
